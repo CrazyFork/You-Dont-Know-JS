@@ -132,6 +132,16 @@
         ```
         这样的一种操作方式, 生成对象的一个实例, 其实就是一个临时的一个属性 , 绑定在 Function上, 在用 `new` 关键字创建对象的时候才会用到.
 
+        * 理解 function 的 prototype 属性一定要先理解 new 操作符, 书里边有解释, 但是似乎找不到了.
+
+            ```js
+            function Person{this.name = 'hi'}
+            Person.prototype.sayHi = function(){console.log(this.name)}
+            // what new essentially does is 
+            let a = Object.create(Person.prototype)
+            Person.appy(a, args)
+            ```
+
     * ` instanceof` 关键字:
 
         ```js
@@ -171,8 +181,7 @@
     * 第五章读完了感觉就没有必要读第六章了, 道理都懂, 但是实在没看懂 说的一大堆的结论的意义是什么, 还有尽管 class 机制掩盖了 js 中的 object delegation 行为, 但实际上从用户 的 mental model 上回更加容易理解其代码行为.
 
 
- todo:
-* new 关键字
+todo:
 
 
 
