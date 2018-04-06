@@ -1,3 +1,181 @@
+
+#notes:
+
+## types & grammar
+* ch2
+    * Number.NAN !== Number.NAN // true
+    * Object.is 的代码实现
+        ```
+        +0 === -0 // true
+        Object.is(-0, +0) // false
+        Object.is(-0, -0) // true
+        Object.is(Number.NAN, Number.NAN) // true
+        ```
+    * Number.EPSILON, 是浮点数的最小精度, 判断浮点数可以用差值来比较
+
+* ch3 
+    * 有的看懂了, 有的没看懂, 感觉也没啥用, 没看懂的部分
+
+* ch04
+    * 这章讲的类型转换, 有的地方太高深了, 感觉也一般用不上, 但是如果出问题的话, 这个地方将是个很好的参考
+
+    * > For regular objects, unless you specify your own, the default toString() (located in Object.prototype.toString()) will return the internal [[Class]] (see Chapter 3), like for instance "[object Object]".
+
+    * JSON.stringfy 的规则还挺有意思, 虽然没啥用
+        * >JSON stringification has the special behavior that if an object value has a toJSON() method defined, this method will be called first to get a value to use for serialization.
+        * > toJSON() should return the actual regular value (of whatever type) that's appropriate, and JSON.stringify(..) itself will handle the stringification.
+
+    * coersion
+
+    * number
+        `ToPrimitive` 先寻找 valueOf 然后 toString 方法, 没有就 type error
+
+    * falsey:
+        * false: `undefined, null, 0, NAN, ""`
+
+
+    * > ~x is roughly the same as -(x+1). That's weird, but slightly easier to reason about.
+
+    * number parsing
+        * >always pass 10 as the second argument
+
+        * 这是因为如果字符串中有 09 这样的字符, 以前规定的行为是以 8 进制去parse, 9 在8进制没有,所以会返回0
+
+        * parseInt 会将目标对象转换成字符串, 然后去parse, 这意味着会先调用目标对象的 toString 方法
+
+    * 后面的 equality 没有读, 感觉没啥太大价值.
+
+
+
+## this & object prototypes
+
+* ch01:
+    * so what is this ?
+
+* ch02:
+    * this 这个东西指向的到底是什么, 在 `Determining this` 这一节解释的十分清楚, 总共四个规则
+
+    * 
+
+* ch03:
+    * > In objects, property names are always strings.
+
+
+    * > As you can see, the last delete call failed (silently) because we made the a property non-configurable
+
+    *
+    ```
+    preventExtensions // 不允许添加属性
+    seal //不允许添加,更改属性配置
+    Freeze // 不允许添加,更改属性配置, 也不允许更改属性值
+
+    Object.keys(..) returns an array of all enumerable properties, whereas 
+    Object.getOwnPropertyNames( myObject ); //  returns an array of *all* properties, enumerable or not.
+    ```
+
+* ch04:
+    * >
+
+* ch05:
+    * Setting & Shadowing Properties
+        * `=` & `Object.defineProperty` 的区别, 
+            * `=` 如果 prototype chain 上面有, 且是 writable=false, 会报错, 否则会动态添加一个 prop.
+            * `Object.defineProperty` 会忽略上边的规则
+        
+        * Shadowing Properties: 这个意思就是说 prototype chain 上面有, 然后用 `=` 重新覆盖了原有属性的行为.
+
+            ```js
+            var anotherObject = {
+                a: 2
+            };
+
+            var myObject = Object.create( anotherObject );
+
+            anotherObject.a; // 2
+            myObject.a; // 2
+
+            anotherObject.hasOwnProperty( "a" ); // true
+            myObject.hasOwnProperty( "a" ); // false
+
+            myObject.a++; // oops, implicit shadowing!
+
+            anotherObject.a; // 2
+            myObject.a; // 3
+
+            myObject.hasOwnProperty( "a" ); // true
+            ```
+    * prototype:
+        ```
+        // pre-ES6
+        // throws away default existing `Bar.prototype`
+        Bar.prototype = Object.create( Foo.prototype );
+
+        // ES6+
+        // modifies existing `Bar.prototype`
+        Object.setPrototypeOf( Bar.prototype, Foo.prototype )
+        ```
+
+        ```js
+        // 判断该object 是否是另一个object的 __proto__
+        Object.prototype.isPrototypeOf()
+        ```
+
+    * `__proto__` vs `prototype`
+        * 标注上来讲 `__proto__` 和 `[[prototype]]` 是一样的, 是真正的 js prototype chain. `Object.create` 和 `Object.setPrototypeOf` 修改的都是这个 `__proto__` 属性的指向
+
+        * 而 `prototype` 这个属性, 指的是 class 或者用 function 作为class用的function对象上的属性值, 这个属性值会在调用 new Function(), 生成对象的时候
+        通过
+        ```js
+        let a = Object.create(Function.prototype)
+        Function.apply(a, arguments)
+        return a
+        ```
+        这样的一种操作方式, 生成对象的一个实例, 其实就是一个临时的一个属性, 绑定在 Function上, 在用 `new` 关键字创建对象的时候才会用到.
+
+    * `instanceof` 关键字:
+
+        ```js
+        Function B(){}
+        a instanceof B // 这句话的意思就是说 a 的 [[prototype]] chain 里边有没有 B.prototype 这个对象, 有就返回 true
+
+        // 跟这个是同理的
+        B.prototype.isPrototypeOf(a)
+        ```
+        
+    * [[prototype]] 工具方法
+
+        ```js
+        // 获得 a 的 [[prototype]]
+        Object.getPrototypeOf( a );
+        
+        // create a empty object.
+        Object.create(null)
+        ```
+
+    * `__proto__` 实现
+
+        ```js
+        Object.defineProperty( Object.prototype, "__proto__", {
+            get: function() {
+                return Object.getPrototypeOf( this );
+            },
+            set: function(o) {
+                // setPrototypeOf(..) as of ES6
+                Object.setPrototypeOf( this, o );
+                return o;
+            }
+        } );
+        ```
+
+* ch06:
+    * 第五章读完了感觉就没有必要读第六章了, 道理都懂, 但是实在没看懂说的一大堆的结论的意义是什么, 还有尽管 class 机制掩盖了 js 中的 object delegation 行为, 但实际上从用户的 mental model 上回更加容易理解其代码行为.
+
+
+todo:
+* new 关键字
+
+
+
 # You Don't Know JS (book series)
 
 This is a series of books diving deep into the core mechanisms of the JavaScript language. The first edition of the series is now complete.
