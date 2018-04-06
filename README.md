@@ -1,5 +1,5 @@
 
-#notes:
+# notes:
 
 ## types & grammar
 * ch2
@@ -162,7 +162,7 @@
         Object.create(null)
         ```
 
-    * `__ proto__` 实现
+    * `__proto__` 实现
 
         ```js
         Object.defineProperty( Object.prototype, "__proto__", {
@@ -179,6 +179,61 @@
 
 * ch06:
     * 第五章读完了感觉就没有必要读第六章了, 道理都懂, 但是实在没看懂 说的一大堆的结论的意义是什么, 还有尽管 class 机制掩盖了 js 中的 object delegation 行为, 但实际上从用户 的 mental model 上回更加容易理解其代码行为.
+
+
+## Scope & Closures
+
+* ch01:
+    * compiler 和 engine 的一个大致原理, 基本上js被下载下来会经过engine(v8 engine for instance)解析(parse)成AST, 然后在执行阶段
+        去动态翻译AST, 在运行的时候变量会根据AST执行的时候动态创建变量的Scope, 这个东西是啥数据结构实现的就不知道了, (stack ?)
+
+    * LHS & RHS
+        > "who's the target of the assignment (LHS)" and "who's the source of the assignment (RHS)".
+    * 
+* ch02:
+    * eval:
+        * eval 会将字符串代码在所在位置执行, 可以动态创建代码执行的一种元编程机制
+        * (1 && eval)("var a = 3"), indirect evaluation 将在 global mode 执行
+        * eval 在 strict mode 中不会修改外层的 lexical scope, 会在自己的域中创建 variable.
+
+            ```js
+            function t(a){
+                "use strict";
+
+                eval(a)
+                console.log(b)
+            }   
+            t("var b = 3") // undefined, or a error been throw.
+            ```
+* ch03:
+    * 这章主要讲了 let, var scpoe 的区别, 还有 functional scope 在js里边应用的一些典型范式
+    * scope 的执行机制就是越到里层, 里边的scope会包含和shadow外层的scope.
+    * 
+
+* ch04: Hoisting
+    * 这章主要讲了 js 变量提升的机制, 基本上的意思就是说 js 中变量提升会把 var 声明提到 function scope 最上面. 后面的赋值按照
+        正常的逻辑理解就可以了. 可以说 js 变量提升这个机制还是蛮恶心的. 需要注意的规则有
+
+        * function first: 这意味着任何 `function <name>(){}` 的声明永远会在 var 前面, 而且后面同样 name 的function 会覆盖
+            前面的 function 声明, 这里需要注意的是, 即使在 if 这种 condition 语句中, function 的声明会skip掉 condition 语句
+            直接使用后面的. 而 `var f = function name(){}` 这种 variable 声明的function 不会被提升到最上面, 指的是f这个变量.
+
+
+        * `var a = function(){}` 注意这里边 js 看到的是两个statement, `var a` & `a=function(){}`, 这意味着在对应scope上执行
+            a() 会导致typeerror, 因为 `var a` 只是声明了, 默认是undefined.
+            
+* ch05: Scope Closure
+    * 这个就没有必要理解了, 感觉自己其实理解的不错了
+
+* apA: dynamic scope
+    *  >lexical scope is write-time, whereas dynamic scope (and this!) are runtime. 
+
+
+
+
+
+
+
 
 
 todo:
