@@ -229,15 +229,122 @@
     *  >lexical scope is write-time, whereas dynamic scope (and this!) are runtime. 
 
 
+## es6 & beyond
+
+这一本书主要讲 es6 语法, 和上边的不同, 上边的主要讲的是es5和之前的语法
+
+* ch01: 
+
+
+* ch02:
+    * 
+    ```js
+    if (something) {
+        function foo() {
+                console.log( "1" );
+            }
+        }
+    else {
+        function foo() {
+            console.log( "2" );
+        }
+    }
+
+    foo();		// ??
+    ```
+
+    这段代码就很有意思了, 在 pre-ES6 之前, 执行环境不会判断if 然后只会留下最后声明的foo, 输出2. 但是 es6 环境变量生命默认是 scope, 所以输出会是 ReferenceError
+
+    * default value
+    ```js
+    var w = 1, z = 2;
+
+    function foo( x = w + 1, y = x + 1, z = z + 1 ) {
+        console.log( x, y, z );
+    }
+
+    foo();	
+    ```
+    结果: foo() 会扔出 ReferenceError, default value 的声明是在函数body外层有一个implicit scope `(..)`, 如果在这个 scope 中找不到, 才会去外层. 这个地方就是`z=z+1`出事了, z 在没有被声明就被引用了 (TDZ (temperial dead zone)).
+
+
+    * template string:
+
+    * Regular Expression
+        * Unique Mode: `/[regular_expression]/u`, 匹配一个 unicode 字符
+        * sticky mode: `/[regular_expression]/y`, 会 `move re.lastIndex`
+
+    * Unicode: 关于Unicode 的知识, `\u{}` 新的(es6)语法
+        * unicode aware technique: 
+
+        ```js
+        var gclef = "𝄞";
+
+        [...gclef].length;				// 1
+        Array.from( gclef ).length;		// 1
+
+        s1.normalize().length;	 
+        ```
 
 
 
+* ch03:
+    * generator
+        * `yield` 关键字的 precedence 很低
+        * `yield * ` 后面需要一个 iterator
+        * generator 的 `return` 和 `throw` 方法都会过早的结束, 
+            * `return` 走finally
+            * `throw` 走 catch 语句
+
+        ```js
+        function *foo() {
+            try {
+                yield 1;
+                yield 2;
+                yield 3;
+            }
+            finally { // finally is cool for clean ups / resource cleaning
+                console.log( "cleanup!" );
+            }
+        }
+        var it = foo()
+        it.next() // print {value: 1, done: false}
+        it.return(42) 
+        // cleanup ! 
+        // {value: 42, done: true}
+        ```
+
+        * 这一章的 error handling 需要注意下, 理解 throw 和 return 的逻辑还是比较重要的, 
+            * return 之后后面的逻辑都不会被执行, 而且返回值是return传递过去的值
+            * throw 是扔出一个异常, 然后会得到扔出异常节点后面的值 
+
+    * class: 
+        * es6 class 继承首先解决了 extends Array, Error 之类的问题, 以前用 es5 prototype 继承 Array, Error 会有些诡异的问题
 
 
+        * `new.target`: 
+            > If new.target is undefined, you know the function was not called with new
+
+        * `Symbol.species`:
+            [Metaprogramming in ES6: Symbols and why they're awesome](https://www.keithcirkel.co.uk/metaprogramming-in-es6-symbols/)
+
+            * 在我的理解就是用来批量处理默认API中的具体类型, 比如map中的方法, 还有Promise.then() 在被继承之后返回的类型
+
+        
+* ch05:
+    * TypedArray
+    * 
+
+* ch7: 
+    * 主要讲了metaprogramming 的一些事情
+    * `Symbol & Proxy & Reflect` etc...
+
+* ch8:
+    * I
 
 
-todo:
-
+Links:
+*[temporal dead zone](http://2ality.com/2015/10/why-tdz.html)
 
 
 # You Don't Know JS (book series)
