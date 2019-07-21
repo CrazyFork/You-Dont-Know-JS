@@ -71,6 +71,7 @@
 
     Object.keys(..) returns an array of all enumerable properties, whereas 
     Object.getOwnPropertyNames( myObject ); //  returns an array of *all* properties, enumerable or not.
+    for ... in // return all enumerable properties, including the ones got defined in prototype.
     ```
 
 * ch04:
@@ -325,8 +326,28 @@
         * `new.target`: 
             > If new.target is undefined, you know the function was not called with new
 
+            ```
+            function Foo() {
+                if (!new.target) throw 'Foo() must be called with new';
+            }
+            ```
+
         * `Symbol.species`:
             [Metaprogramming in ES6: Symbols and why they're awesome](https://www.keithcirkel.co.uk/metaprogramming-in-es6-symbols/)
+
+            > !Symbol.species is a pretty clever Symbol, it points to the constructor value of a class, which allows classes to create new versions of themselves within methods.
+
+            说白了就是为了动态改 this 的 constructor 指向的 Function
+
+            ```
+            Array.prototype.map = function (callback) {
+                var returnValue = new Array(this.length);
+                this.forEach(function (item, index, array) {
+                    returnValue[index] = callback(item, index, array);
+                });
+                return returnValue;
+            }
+            ```
 
             * 在我的理解就是用来批量处理默认API中的具体类型, 比如map中的方法, 还有Promise.then() 在被继承之后返回的类型
 
